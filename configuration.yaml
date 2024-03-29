@@ -1,0 +1,606 @@
+homeassistant:
+  auth_providers:
+    - type: trusted_networks
+      allow_bypass_login: True
+      trusted_networks:
+        - !secret trusted_network1
+    - type: homeassistant
+auth_header:
+  username_header: X-authentik-username
+  debug: false
+default_config:
+homeassistant_alerts:
+mobile_app:
+homekit:
+  - filter:
+      include_domains:
+        - alarm_control_panel
+      include_entities:
+        - alarm_control_panel.home_alarm_system
+    entity_config:
+      alarm_control_panel.home_alarm_system:
+        code: !secret homekit_alarmo_code
+stream:
+  ll_hls: true
+  part_duration: 0.75
+  segment_duration: 6
+mqtt:
+  alarm_control_panel:
+    - name: "Wyze Keypad - Front Door"
+      state_topic: "wyzesensebridge2mqtt/77C53E5C"
+      command_topic: "wyzesensebridge2mqtt/77C53E5C"
+      payload_disarm: "DISARM"
+      payload_arm_home: "ARM_HOME"
+      payload_arm_away: "ARM_AWAY"
+      value_template: >-
+        {% if value_json.command_topic == 'DISARM' %}
+          disarmed
+        {% elif value_json.command_topic == 'ARM_HOME' %}
+          armed_home
+        {% elif value_json.command_topic == 'ARM' %}
+          armed_away
+        {% else %}
+          disarmed
+        {% endif %}
+  #      command_template: >-
+  #        { "action": "{{ value_json.command_topic }}", "code": "{{ value_json.code }}" }
+  #       state_topic: "wyzesensebridge2mqtt/77C53E5C"
+  #       command_topic: "wyzesensebridge2mqtt/77C53E5C"
+  #       command_template: >
+  #         { "action": "{{ value_json.command_topic }}", "code": "{{ value_json.code }}" }
+  #       availability_topic: "wyzesensebridge2mqtt"
+  #       availability_mode: any
+  #       payload_disarm: "DISARM"
+  #       payload_arm_away: "ARM_AWAY"
+  #       payload_arm_home: "ARM_HOME"
+  #       payload_arm_night: "ARM_NIGHT"
+  sensor:
+    - name: "Wyze Keypad Status - Front Door"
+      state_topic: "wyzesensebridge2mqtt/77C53E5C"
+      value_template: "{{ value_json.command_topic}}"
+      json_attributes_topic: "wyzesensebridge2mqtt/77C53E5C"
+      json_attributes_template: "{{ value_json | tojson }}"
+    - name: "Wyze Keypad Alarm Code - Front Door"
+      state_topic: "wyzesensebridge2mqtt/77C53E5C"
+      value_template: "{{ value_json.code }}"
+
+  # sensor:
+  #   - name: "Wyze Sensor 77C53E5C"
+  #     unique_id: sensor.alarm
+  #     state_topic: "WyzeSenseBlazor/77C53E5C"
+  #     value_template: "{{ value_json.ModeName }}"
+  #     json_attributes_topic: "WyzeSenseBlazor/77C53E5C"
+  #     json_attributes_template: "{{ value_json | tojson }}"
+  #   json_attributes_topic: "WyzeSenseBlazor"
+  #   json_attributes_template: "{{ value_json | tojson }}"
+# binary_sensor:
+#   - platform: wyzesense
+#     device: "auto"
+# initial_state:
+#   77793176: "on"
+#   77793193: "off"
+energy:
+websocket_api:
+browser_mod:
+zha:
+simpleicons:
+cloud:
+prometheus:
+smartir:
+  update_branch: rc
+camera:
+  - platform: local_file
+    file_path: /config/images/mail_and_packages/mail_none.gif
+    name: mail_usps
+recorder:
+  db_url: !secret mariadb_url
+  db_max_retries: 1000
+  db_retry_wait: 1
+  purge_keep_days: 30
+  commit_interval: 0
+  auto_purge: true
+  auto_repack: true
+  exclude:
+    entity_globs:
+      #      - sensor.*_uptime
+      #      - sensor.*_tx
+      #      - sensor.*_rx
+      - sensor.coinbase_*
+      - sensor.openweathermap*
+      - sensor.wxt9861
+influxdb:
+  host: !secret influxdb_host
+  port: 8086
+  database: homeassistant
+  username: !secret influxdb_user
+  password: !secret influxdb_pass
+  max_retries: 1
+  default_measurement: state
+  exclude:
+    entity_globs:
+      - sensor.*_uptime
+      - sensor.*_tx
+      - sensor.*_rx
+      - sensor.coinbase_*
+      - sensor.openweathermap*
+      - sensor.wxt9861
+    domains:
+      - sun
+      - media_player
+      - weather
+      - calendar
+      - update
+  include:
+    domains:
+      - automation
+      - alarm_control_panel
+      - binary_sensor
+      - camera
+      - climate
+      - device_tracker
+      - geo_location
+      - image_processing
+      - person
+      - persistent_notification
+      - sensor
+
+# influxdb:
+#   api_version: 1
+#   host: 8f49de54-victoria-metrics
+#   port: 8428
+#   max_retries: 2
+#   measurement_attr: entity_id
+#   tags_attributes:
+#     - friendly_name
+#     - unit_of_measurement
+#   ignore_attributes:
+#     - icon
+#     - source
+#     - options
+#     - editable
+#     - min
+#     - max
+#     - step
+#     - mode
+#     - marker_type
+#     - preset_modes
+#     - supported_features
+#     - supported_color_modes
+#     - effect_list
+#     - attribution
+#     - assumed_state
+#     - state_open
+#     - state_closed
+#     - writable
+#     - stateExtra
+#     - event
+#     - friendly_name
+#     - device_class
+#     - state_class
+#     - ip_address
+#     - device_file
+#     - unit_of_measurement
+#     - unitOfMeasure
+#   include:
+#     domains:
+#       - sensor
+#       - binary_sensor
+#       - light
+#       - switch
+#       - cover
+#       - climate
+#       - input_boolean
+#       - input_select
+#       - number
+#       - lock
+#       - weather
+#   exclude:
+#     entity_globs:
+#       - sensor.clock*
+#       - sensor.date*
+#       - sensor.glances*
+#       - sensor.time*
+#       - sensor.uptime*
+#       - sensor.dwd_weather_warnings_*
+#       - weather.weatherstation
+#       - binary_sensor.*_smartphone_*
+#       - sensor.*_smartphone_*
+#       - sensor.adguard_home_*
+#       - binary_sensor.*_internet_access
+
+group: !include groups.yaml
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+sensor: !include sensors.yaml
+anniversaries: !include anniversaries.yaml
+ios: !include actions.yaml
+#multiscrape: !include multiscrape.yaml
+
+logger:
+  default: info
+  logs:
+    #     custom_components.wyzesense: warn
+    #     wyzesense.gateway: warn
+    #     custom_components.multiscrape: warn
+    #     custom_components.google_home: debug
+    #     custom_components.portainer: debug
+    waste_collection_schedule: info
+    #     custom_components.esxi_stats: warn
+    #     custom_components.mail_and_packages: warn
+    homeassistant.components.http.ban: info
+#     homeassistant.components.websocket_api: warn
+#     custom_components.ble_monitor: warn
+#     homeassistant.components.homekit: warn
+#     pyunifiprotect: warn
+#     homeassistant.components.unifiprotect: warn
+#     pyhap: warn
+#     libdyson: warn
+#     custom_components.dyson_local: warn
+#     custom_components.dyson_cloud: warn
+#     custom_components.multiscrape: warn
+#     homeassistant.components.dlna_dms: warn
+#     async_upnp_client.profiles.profile: warn
+#     async_upnp_client.profiles.dlna: warn
+#     homeassistant.components.govee: warn
+#     custom_components.govee: warn
+#     govee_api_laggat: warn
+#     custom_components.auth_header: warn
+#     custom_components.wyzeapi: warn
+#     wyzeapy: warn
+
+# Example configuration.yaml entry
+#geo_location:
+#  - platform: usgs_earthquakes_feed
+#    feed_type: "past_month_all_earthquakes"
+#    radius: 50
+#    minimum_magnitude: 0.0
+#    latitude: 47.62255
+#    longitude: -122.319590
+
+# pyscript:
+#   allow_all_imports: true
+#   hass_is_global: true
+
+frontend:
+  themes: !include_dir_merge_named themes
+  extra_module_url:
+    - /local/community/custom-brand-icons/custom-brand-icons.js
+    - /local/hass-bha-icons.js
+
+http:
+  #   base_url: !secret ha_base_url
+  #   server_port: 443
+  #   ssl_certificate: /ssl/fullchain.pem
+  #   ssl_key: /ssl/privkey.pem
+  ip_ban_enabled: false
+  login_attempts_threshold: 25
+  cors_allowed_origins:
+    - !secret cors_origin_home
+    - !secret cors_origin_nabucasa
+    - !secret cors_origin_cast
+  use_x_forwarded_for: true
+  trusted_proxies:
+    - ::1
+    - 127.0.0.1
+    - 172.30.33.0/24
+    - 172.30.32.0/24
+    - !secret trusted_proxy1
+    - !secret trusted_proxy2
+    - !secret trusted_proxy3
+    - !secret trusted_proxy4
+    - !secret trusted_proxy5
+    - !secret trusted_proxy6
+
+powercalc:
+  force_update_frequency: 00:01:00 #Each minute
+  power_sensor_naming: "{} power"
+  create_energy_sensors: true
+  create_utility_meters: true
+
+feedreader:
+  urls:
+    - https://alerts.home-assistant.io/
+    - https://www.home-assistant.io/atom.xml
+    - https://github.com/blog.atom
+    - https://hasspodcast.io/feed/podcast
+  scan_interval:
+    minutes: 30
+  max_entries: 5
+
+waste_collection_schedule:
+  sources:
+    - name: seattle_gov
+      args:
+        street_address: !secret waste_collection_street_address
+        prem_code: !secret prem_code
+
+tts:
+  - platform: google_translate
+
+# #Google Cloud TTS
+# tts:
+#   - platform: google_cloud
+#     key_file: google-cloud.json
+#     language: en-US
+#     gender: male
+#     voice: en-US-Wavenet-J
+#     encoding: mp3
+#     # base_url: !secret google_cloud_base_url
+#     # speed: 0.9
+#     # pitch: -2.5
+#     # gain: -5.0
+#     profiles:
+#       - small-bluetooth-speaker-class-device
+
+panel_custom:
+  - name: panel_server_controls
+    sidebar_title: Server Control
+    sidebar_icon: mdi:restart
+    url_path: "config/system"
+    module_url: /api/hassio/app/entrypoint.js
+    embed_iframe: true
+    require_admin: true
+  - name: panel_integrations
+    sidebar_title: Integrations
+    sidebar_icon: mdi:audio-input-rca
+    url_path: "config/integrations"
+    module_url: /api/hassio/app/entrypoint.js
+    embed_iframe: true
+    require_admin: true
+  - name: panel_add-ons
+    sidebar_title: Add-Ons
+    sidebar_icon: mdi:tab-plus
+    url_path: "hassio/dashboard"
+    module_url: /api/hassio/app/entrypoint.js
+    embed_iframe: true
+    require_admin: true
+  - name: panel_automations
+    sidebar_title: Automations
+    sidebar_icon: mdi:cogs
+    url_path: "config/automation"
+    module_url: /api/hassio/app/entrypoint.js
+    embed_iframe: true
+    require_admin: true
+  - name: panel_dashboards
+    sidebar_title: Dashboards
+    sidebar_icon: mdi:view-dashboard-edit-outline
+    url_path: "config/lovelace/dashboards"
+    module_url: /api/hassio/app/entrypoint.js
+    embed_iframe: true
+    require_admin: true
+# panel_iframe:
+#   mealie:
+#     title: Mealie
+#     icon: mdi:noodles
+#     url: !secret mealie_url
+#   flame:
+#     title: Flame
+#     icon: mdi:fire
+#     url: !secret flame_url
+#   guacamolee:
+#     title: Guacamole
+#     icon: mdi:remote-desktop
+#     url: !secret guacamole_url
+#   npm:
+#     title: Nginx Proxy Manager
+#     icon: mdi:arrow-decision
+#     url: !secret npm_url
+#   ag2:
+#     title: AdGuard Home (AG2)
+#     icon: mdi:shield-check
+#     url: !secret ag2_url
+#   agsync:
+#     title: AdGuard Home Sync
+#     icon: mdi:sync
+#     url: !secret ag-sync_url
+
+remote_syslog:
+
+notify:
+  #Ntfy
+  - name: ntfy_lowpri
+    platform: rest
+    method: POST_JSON
+    authentication: basic
+    username: !secret ntfy_username
+    password: !secret ntfy_password
+    data:
+      topic: HomeAssistant
+      priority: 1
+    title_param_name: title
+    message_param_name: message
+    resource: https://ntfy.managemycloudfor.me
+  - name: ntfy_medpri
+    platform: rest
+    method: POST_JSON
+    authentication: basic
+    username: !secret ntfy_username
+    password: !secret ntfy_password
+    data:
+      topic: HomeAssistant
+      priority: 3
+    title_param_name: title
+    message_param_name: message
+    resource: https://ntfy.managemycloudfor.me
+  - name: ntfy_highpri_message
+    platform: rest
+    method: POST_JSON
+    authentication: basic
+    username: !secret ntfy_username
+    password: !secret ntfy_password
+    data:
+      topic: HomeAssistant
+      priority: 5
+    title_param_name: title
+    message_param_name: message
+    resource: https://ntfy.managemycloudfor.me
+  #Gotify
+  # - platform: rest
+  #   name: gotify_1
+  #   resource: https://gotify.managemycloudfor.me/message
+  #   method: POST_JSON
+  #   headers:
+  #     X-Gotify-Key: !secret gotify_key
+  #   message_param_name: message
+  #   title_param_name: title
+  #   target_param_name: priority
+  #   data:
+  #     extras:
+  #       client::display:
+  #         contentType: "text/markdown"
+  #       client::notification:
+  #         click: { "url": "{{states('input_text.gotify')}}" }
+  - platform: msteams
+    url: https://outlook.office.com/webhook/<ID>
+  - platform: html5
+    name: !secret html5_name
+    vapid_pub_key: !secret html5_vapid_pub_key
+    vapid_prv_key: !secret html5_vapid_pub_key
+    vapid_email: !secret html5_vapid_email
+  - name: cshaw_notify_all_devices
+    platform: group
+    services:
+      - service: mobile_app_christopher_s_ipad_pro
+      - service: mobile_app_christophers_iphone_15_pro_max
+      - service: mobile_app_christophers_macbook_pro_16_inch_2019
+      - service: mobile_app_cshaw_adaptive_mbp
+      - service: mobile_app_christophers_macbook_pro
+      - service: ntfy_lowpri
+  - name: "gmail"
+    platform: smtp
+    server: !secret gmail_smtp_server
+    port: 587
+    timeout: 15
+    sender: !secret gmail_smtp_user
+    encryption: starttls
+    username: !secret gmail_smtp_user
+    password: !secret gmail_smtp_key
+    recipient:
+      - !secret gmail_smtp_user
+    sender_name: "Home_Assistant"
+  - name: "email"
+    platform: smtp
+    server: !secret managemycloudfor.me_smtp_server
+    port: 587
+    timeout: 15
+    sender: !secret managemycloudfor.me_smtp_user
+    encryption: starttls
+    username: !secret managemycloudfor.me_smtp_user
+    password: !secret managemycloudfor.me_smtp_key
+    recipient:
+      - !secret gmail_smtp_user
+    sender_name: "Home_Assistant"
+  - name: syslog_kernel
+    platform: syslog
+    facility: kernel
+  - name: syslog_user
+    platform: syslog
+    facility: user
+  - name: syslog_mail
+    platform: syslog
+    facility: mail
+  - name: syslog_daemon
+    platform: syslog
+    facility: daemon
+  - name: syslog_auth
+    platform: syslog
+    facility: auth
+  - name: syslog_lpr
+    platform: syslog
+    facility: LPR
+  - name: syslog_news
+    platform: syslog
+    facility: news
+  - name: syslog_uucp
+    platform: syslog
+    facility: uucp
+  - name: syslog_cron
+    platform: syslog
+    facility: cron
+  - name: syslog_syslog
+    platform: syslog
+    facility: syslog
+
+#iCloud CalDAV
+calendar:
+  - platform: caldav
+    url: https://caldav.icloud.com
+    username: !secret icloud_caldav_email
+    password: !secret icloud_caldav_password
+    days: 365
+    verify_ssl: true
+
+#rest: !include nomics_crypto_tracker.yaml
+
+rest:
+  resource: http://192.168.12.1/TMI/v1/gateway?get=all
+  scan_interval: 60
+  method: GET
+  sensor:
+    name: tmhi_radio_status
+    json_attributes:
+      - signal
+      - device
+      - time
+    value_template: "{{ value_json.device.enabled }}"
+
+fan:
+  - platform: template
+    fans:
+      dyson_fan:
+        friendly_name: "Dyson Fan"
+        value_template: "{{ states('input_boolean.state') }}"
+        percentage_template: "{{ states('input_number.percentage') }}"
+        preset_mode_template: "{{ states('input_select.preset_mode') }}"
+        oscillating_template: "{{ states('input_select.osc') }}"
+        direction_template: "{{ states('input_select.direction') }}"
+        turn_on:
+          service: script.fan_on
+        turn_off:
+          service: script.fan_off
+        set_percentage:
+          service: script.fans_set_speed
+          data:
+            percentage: "{{ percentage }}"
+        set_preset_mode:
+          service: script.fans_set_preset_mode
+          data:
+            preset_mode: "{{ preset_mode }}"
+        set_oscillating:
+          service: script.fan_oscillating
+          data:
+            oscillating: "{{ oscillating }}"
+        set_direction:
+          service: script.fan_direction
+          data:
+            direction: "{{ direction }}"
+        speed_count: 6
+        preset_modes:
+          - "auto"
+          - "smart"
+          - "whoosh"
+# #Google Assistant Integration
+# google_assistant:
+#   project_id: home-assistant-286523
+#   service_account: !include "Home Assistant-fc48cf67a6ab.json"
+#   report_state: true
+#   exposed_domains:
+#     - switch
+#     - light
+#     - lights
+#     - sensor
+#     - lock
+#     - alarm_control_panel
+#     - camera
+#     - group
+#     - input_boolean
+#     - input_select
+#     - scene
+#     - script
+#     - fan
+#     - cover
+#     - media_player
+#     - climate
+#     - vacuum
+#     - humidifier (humidity setting/on/off/mode)
